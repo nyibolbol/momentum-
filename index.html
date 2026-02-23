@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Momentum</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header id="header">
+      <div class="header-left">
+        <h1 id="header-title">Today</h1>
+        <span id="header-date"></span>
+      </div>
+      <div class="header-right">
+        <button id="btn-add" class="icon-btn" aria-label="Add new">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button id="btn-settings" class="icon-btn" aria-label="Settings">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Today View -->
+    <main id="view-today" class="view active">
+      <div id="today-progress">
+        <div class="progress-ring-container">
+          <svg class="progress-ring" width="80" height="80">
+            <circle class="progress-ring-bg" cx="40" cy="40" r="34"/>
+            <circle class="progress-ring-fill" cx="40" cy="40" r="34"/>
+          </svg>
+          <span id="progress-text">0%</span>
+        </div>
+        <div class="progress-info">
+          <span id="progress-count">0 of 0 done</span>
+          <span id="streak-badge" class="streak-badge" hidden></span>
+        </div>
+      </div>
+      <div id="today-list"></div>
+      <div id="empty-state" class="empty-state" hidden>
+        <p>No habits yet</p>
+        <p class="subtle">Tap + to add your first habit</p>
+      </div>
+    </main>
+
+    <!-- Habits Management View -->
+    <main id="view-habits" class="view">
+      <div id="habits-list"></div>
+    </main>
+
+    <!-- Streaks View -->
+    <main id="view-streaks" class="view">
+      <div id="streaks-list"></div>
+    </main>
+
+    <!-- Settings View -->
+    <main id="view-settings" class="view">
+      <div class="settings-group">
+        <h2>Reminders</h2>
+        <div class="setting-row">
+          <label for="reminder-toggle">Daily reminder</label>
+          <label class="toggle">
+            <input type="checkbox" id="reminder-toggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-row" id="reminder-time-row" hidden>
+          <label for="reminder-time">Reminder time</label>
+          <input type="time" id="reminder-time" value="08:00">
+        </div>
+      </div>
+      <div class="settings-group">
+        <h2>Data</h2>
+        <div class="setting-row">
+          <label>Export data</label>
+          <button id="btn-export" class="btn-secondary">Export JSON</button>
+        </div>
+        <div class="setting-row">
+          <label>Import data</label>
+          <input type="file" id="import-file" accept=".json" hidden>
+          <button id="btn-import" class="btn-secondary">Import JSON</button>
+        </div>
+        <div class="setting-row danger">
+          <label>Reset all data</label>
+          <button id="btn-reset" class="btn-danger">Reset</button>
+        </div>
+      </div>
+      <div class="settings-group">
+        <p class="app-info">Momentum v1.0<br><span class="subtle">Your data is stored locally on this device.</span></p>
+      </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav id="bottom-nav">
+      <button class="nav-btn active" data-view="today">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Today</span>
+      </button>
+      <button class="nav-btn" data-view="habits">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span>Habits</span>
+      </button>
+      <button class="nav-btn" data-view="streaks">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <span>Streaks</span>
+      </button>
+    </nav>
+
+    <!-- Add/Edit Modal -->
+    <div id="modal-overlay" class="modal-overlay" hidden>
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="modal-title">Add Habit</h2>
+          <button id="modal-close" class="icon-btn" aria-label="Close">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <form id="habit-form">
+          <input type="hidden" id="habit-id">
+          <div class="form-group">
+            <label for="habit-name">Name</label>
+            <input type="text" id="habit-name" placeholder="e.g. Morning workout" required autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="habit-category">Category</label>
+            <select id="habit-category"></select>
+          </div>
+          <div class="form-group">
+            <label for="habit-type">Type</label>
+            <select id="habit-type">
+              <option value="daily">Daily habit</option>
+              <option value="todo">One-off task</option>
+            </select>
+          </div>
+          <div class="form-group" id="due-date-group" hidden>
+            <label for="habit-due">Due date (optional)</label>
+            <input type="date" id="habit-due">
+          </div>
+          <div class="form-actions">
+            <button type="button" id="btn-delete-habit" class="btn-danger" hidden>Delete</button>
+            <button type="submit" class="btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Confirm Dialog -->
+    <div id="confirm-overlay" class="modal-overlay" hidden>
+      <div class="modal modal-sm">
+        <p id="confirm-message"></p>
+        <div class="form-actions">
+          <button id="confirm-cancel" class="btn-secondary">Cancel</button>
+          <button id="confirm-ok" class="btn-danger">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
